@@ -7,7 +7,7 @@ Description: >
 
 Parameters:
   PokemonTgcApiKeyParam:
-    Type: AWS::SSM::Parameter::Value<SecureString>
+    Type: AWS::SSM::Parameter::Value<String>
     Default: 'PokemonTgcApiKey'
     Description: Api key to use against pokemon api
 
