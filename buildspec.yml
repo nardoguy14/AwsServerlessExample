@@ -34,7 +34,7 @@ phases:
     #file-format: JunitXml | CucumberJson
 artifacts:
   files:
-    - appspec.yaml
+    - appspec.yml
     # - location
     #name: $(date +%Y-%m-%d)
     #discard-paths: yes
