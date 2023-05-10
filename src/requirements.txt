@@ -1,0 +1,6 @@
+fastapi
+requests
+pokemontcgsdk
+python-multipart
+mangum
+uvicorn[standard]
