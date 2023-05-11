@@ -6,9 +6,22 @@ from pokemontcgsdk import Card
 from mangum import Mangum
 from fastapi import FastAPI, UploadFile
 from pokemontcgsdk import RestClient
+from starlette.middleware.cors import CORSMiddleware
 
 RestClient.configure(os.environ.get("PokemonTgcApiKey"))
 app = FastAPI()
+
+origins = [
+    "*"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.post("/dragonshield/cards/details")
 async def upload_dragonshield_file(file: UploadFile):
@@ -27,7 +40,7 @@ async def upload_dragonshield_file(file: UploadFile):
             #pokemon rows
             print(f'{row}')
             id = f"{row[3]}-{row[2]}"
-            id, tcgplayer, images = validateCardAgainstTgc(row, id)
+            id, tcgplayer, images, name = validateCardAgainstTgc(row, id)
             if id is None:
                 continue
             json_output_for_dex.append({
@@ -37,7 +50,8 @@ async def upload_dragonshield_file(file: UploadFile):
             json_output_for_selling.append({
                 "id": id,
                 "tgcplayer": tcgplayer,
-                "images": images
+                "images": images,
+                "name": name
             })
             line_count += 1
     print(f'Processed {line_count} lines.')
@@ -69,6 +83,6 @@ def validateCardAgainstTgc(row, id):
         print(card.name)
         if card.name != row[1]:
             return None
-    return (id, tcgplayer, images)
+    return (id, tcgplayer, images, card.name)
 
 lambda_handler = Mangum(app, lifespan="off")
