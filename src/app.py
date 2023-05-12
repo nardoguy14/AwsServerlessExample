@@ -38,9 +38,7 @@ async def upload_dragonshield_file(file: UploadFile):
             line_count += 1
         else:
             #pokemon rows
-            print(f'{row}')
-            id = f"{row[3]}-{row[2]}"
-            id, tcgplayer, images, name = validateCardAgainstTgc(row, id)
+            id, tcgplayer, images, name = validateCardAgainstTgc(row)
             if id is None:
                 continue
             json_output_for_dex.append({
@@ -67,22 +65,50 @@ def getPokemonFromDragonShield(file: UploadFile):
         print(row)
     return rows
 
-def validateCardAgainstTgc(row, id):
+def findGalleryCard(row):
+    mappings = {
+        "swsh9": "swsh9tg",
+        "swsh10": "swsh10tg",
+        "swsh11": "swsh11tg",
+        "swsh12": "swsh12tg",
+        "swsh12pt5": "swsh12pt5gg"
+    }
+
+    mapping = "TG"
+    if row[3] == "swsh12pt5":
+        mapping = "GG"
+
+    if int(row[2]) < 10:
+        num = f'0{row[2]}'
+    else:
+        num = row[2]
+
+    id = f"{mappings[row[3]]}-{mapping}{num}"
+    print(f"new id: {id}")
+
+    card = Card.find(id)
+    print(card.name)
+    if card.name != row[1]:
+        return None
+    return (id, card)
+
+
+def validateCardAgainstTgc(row):
+    print(f'{row}')
+    id = f"{row[3]}-{row[2]}"
+
+
     card = Card.find(id)
     tcgplayer = card.tcgplayer
     images = card.images
 
-    print(card)
+    print(f"{card.name} === {row[1]}")
     if card.name != row[1]:
-        if int(row[2]) < 10:
-            num = f'0{row[2]}'
-        else:
-            num = row[2]
-        id = f"{row[3]}tg-TG{num}"
-        card = Card.find(id)
-        print(card.name)
-        if card.name != row[1]:
-            return None
+        id, card = findGalleryCard(row)
+        tcgplayer = card.tcgplayer
+        images = card.images
+        return (id, tcgplayer, images, card.name)
+
     return (id, tcgplayer, images, card.name)
 
 lambda_handler = Mangum(app, lifespan="off")
