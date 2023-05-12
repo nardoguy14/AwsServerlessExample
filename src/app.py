@@ -37,19 +37,21 @@ async def upload_dragonshield_file(file: UploadFile):
             print(f'{", ".join(row)}')
             line_count += 1
         else:
+            quantity = row[0]
             #pokemon rows
             id, tcgplayer, images, name = validateCardAgainstTgc(row)
             if id is None:
                 continue
             json_output_for_dex.append({
                 "id": id,
-                "quantity":1
+                "quantity": quantity
             })
             json_output_for_selling.append({
                 "id": id,
                 "tgcplayer": tcgplayer,
                 "images": images,
-                "name": name
+                "name": name,
+                "quantity": quantity
             })
             line_count += 1
     print(f'Processed {line_count} lines.')
