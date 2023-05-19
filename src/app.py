@@ -53,6 +53,7 @@ async def upload_dragonshield_file(file: UploadFile):
                 "name": name,
                 "quantity": quantity
             })
+            print("just a small test")
             line_count += 1
     print(f'Processed {line_count} lines.')
     print(json_output_for_dex)
