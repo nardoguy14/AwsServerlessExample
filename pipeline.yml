@@ -1,0 +1,55 @@
+# Example cicd codepipeline to run via cloudformation cli to create a
+# pipeline that pulls down the source, builds the code, and deploys via AWS CodePipeline
+# Command to run is:
+#  aws cloudformation create-stack \
+#  --stack-name testpipelinestack \
+#  --template-body file://pipeline.yml \
+#  --region us-east-1
+
+Resources:
+  PokemonMapperPipelineCloudformation:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: arn:aws:iam::132856321237:role/service-role/AWSCodePipelineServiceRole-us-east-1-pokemonmapper-pipeline
+      ArtifactStore:
+        Type: S3
+        Location: codepipeline-us-east-1-281556488682
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              RunOrder: 1
+              Configuration:
+                ConnectionArn: >-
+                  arn:aws:codestar-connections:us-east-1:132856321237:connection/f36607aa-3979-4880-989d-851ebcdd1e50
+                DetectChanges: 'true'
+                BranchName: main
+                OutputArtifactFormat: CODE_ZIP
+                FullRepositoryId: nardoguy14/AwsServerlessExample
+              OutputArtifacts:
+                - Name: SourceArtifact
+              InputArtifacts: []
+              Region: us-east-1
+              Namespace: SourceVariables
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              RunOrder: 1
+              Configuration:
+                ProjectName: pokemonmapper-build
+              OutputArtifacts:
+                - Name: BuildArtifact
+              InputArtifacts:
+                - Name: SourceArtifact
+              Region: us-east-1
+              Namespace: BuildVariables
