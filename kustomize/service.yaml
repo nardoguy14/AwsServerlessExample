@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pokeapi
+spec:
+  type: ClusterIP
+  selector:
+    app: pokeapi
+  ports:
+    - name: http
+      port: 8001
+      protocol: TCP
+      targetPort: 8000
