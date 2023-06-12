@@ -4,3 +4,4 @@ pokemontcgsdk
 python-multipart
 mangum
 uvicorn[standard]
+gunicorn
