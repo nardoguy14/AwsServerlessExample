@@ -25,7 +25,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def get_health():
-    return {"status": "ok"}
+    return {"status": "okk"}
 
 @app.post("/dragonshield/cards/details")
 async def upload_dragonshield_file(file: UploadFile):
