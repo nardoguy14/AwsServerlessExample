@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: pokeapicontainer
-        image: public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
+        image: public.ecr.aws/nginx/nginx:1.21 #public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
         imagePullPolicy: Always
         ports:
         - name: tcp
