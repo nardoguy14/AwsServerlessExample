@@ -2,6 +2,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - docker login --username nardoarevalo@me.com -p $DOCKERPASSWORD
       - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z3r6l3x6
   build:
     commands:
