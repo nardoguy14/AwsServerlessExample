@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.8 as build
+FROM python:3.8
 WORKDIR /src
 COPY /src ./src/
 RUN pip3 install -r ./src/requirements.txt
