@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: pokeapi
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: pokeapi
   ports:
