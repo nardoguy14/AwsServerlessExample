@@ -3,13 +3,7 @@ kind: Deployment
 metadata:
   name: pokeapi
 spec:
-  minReadySeconds: 3
-  revisionHistoryLimit: 5
-  progressDeadlineSeconds: 60
-  strategy:
-    rollingUpdate:
-      maxUnavailable: 0
-    type: RollingUpdate
+  replicas: 3
   selector:
     matchLabels:
       app: pokeapi
@@ -23,18 +17,6 @@ spec:
         image: public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
         imagePullPolicy: Always
         ports:
-        - name: http
+        - name: tcp
           containerPort: 8000
           protocol: TCP
-        - name: http-metrics
-          containerPort: 9797
-          protocol: TCP
-          initialDelaySeconds: 5
-          timeoutSeconds: 5
-        resources:
-          limits:
-            cpu: 2000m
-            memory: 512Mi
-          requests:
-            cpu: 100m
-            memory: 64Mi

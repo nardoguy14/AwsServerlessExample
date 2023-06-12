@@ -11,7 +11,6 @@ spec:
   selector:
     app: pokeapi
   ports:
-    - name: http
-      port: 8002
+    - port: 80
       protocol: TCP
-      targetPort: 8000
+      targetPort: 80
