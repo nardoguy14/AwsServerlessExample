@@ -23,6 +23,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def get_health():
+    return {"status": "ok"}
+
 @app.post("/dragonshield/cards/details")
 async def upload_dragonshield_file(file: UploadFile):
     json_output_for_dex = []
