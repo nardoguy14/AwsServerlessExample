@@ -8,6 +8,6 @@ spec:
     app: pokeapi
   ports:
     - name: http
-      port: 8001
+      port: 8002
       protocol: TCP
       targetPort: 8000
