@@ -1,0 +1,31 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: NardoClusterEksctl
+  region: us-east-1
+
+vpc:
+  id: "vpc-0cb3bfa4e20df9a0b"
+  nat:
+    gateway: Single
+  subnets:
+    public:
+      us-east-1d: { id: subnet-0852bbe71fdcaaa4d }
+      us-east-1b: { id: subnet-0e344b84222462d0e }
+
+nodeGroups:
+  - name: ng-1-workers
+    labels: { role: workers }
+    instanceType: t3.medium
+    minSize: 1
+    volumeSize: 8
+    volumeType: gp3
+    desiredCapacity: 2
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy

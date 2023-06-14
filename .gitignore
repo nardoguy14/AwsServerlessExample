@@ -8,8 +8,8 @@
 .fuse_hidden*
 .aws-sam
 .idea
-
-
+IaC/.terraform*
+IaC/terraform.tfstate*
 # KDE directory preferences
 .directory
 
