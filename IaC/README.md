@@ -17,6 +17,9 @@ https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/comp
 https://registry.terraform.io/modules/terraform-aws-modules/eks/aws/latest/submodules/eks-managed-node-group
 
 ```bash
+# go 2 duh doe-rec-doe-ree
+cd terraform
+
 #initialize terraform to get all plugins for providers and more
 terraform init
 
