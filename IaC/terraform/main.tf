@@ -56,12 +56,8 @@ module "eks" {
       max_size     = 2
       desired_size = 2
       disk_size = 8
-
-
     }
   }
-
-
 
   tags = {
     Terraform = "true"
