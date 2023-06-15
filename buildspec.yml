@@ -4,7 +4,7 @@ phases:
     commands:
       - |
         if [ $ENVIRONMENT=="integration" ]; then
-          if [$BUILD_KIND=="eks" ]; then
+          if [ $BUILD_KIND=="eks" ]; then
             aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z3r6l3x6
           fi
         fi
@@ -13,7 +13,7 @@ phases:
     commands:
       - |
         if [ $ENVIRONMENT=="integration" ]; then
-          if [$BUILD_KIND=="eks" ]; then
+          if [ $BUILD_KIND=="eks" ]; then
             docker build -t fairpricepokeapi .
             docker tag fairpricepokeapi:latest public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
           else
@@ -26,7 +26,7 @@ phases:
     commands:
       - |
         if [ $ENVIRONMENT=="integration" ]; then
-          if [$BUILD_KIND=="eks" ]; then
+          if [ $BUILD_KIND=="eks" ]; then
             echo "Pushing image"
             docker push public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
           else
