@@ -2,11 +2,34 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z3r6l3x6
+      - |
+        if [ $ENVIRONMENT=="integration" ]; then
+          if [$BUILD_KIND=="eks" ]; then
+            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/z3r6l3x6
+          fi
+        fi
+
   build:
     commands:
-      - docker build -t fairpricepokeapi .
-      - docker tag fairpricepokeapi:latest public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
+      - |
+        if [ $ENVIRONMENT=="integration" ]; then
+          if [$BUILD_KIND=="eks" ]; then
+            docker build -t fairpricepokeapi .
+            docker tag fairpricepokeapi:latest public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
+          else
+            sam build
+          fi
+        fi
+          
+
   post_build:
     commands:
-      - docker push public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
+      - |
+        if [ $ENVIRONMENT=="integration" ]; then
+          if [$BUILD_KIND=="eks" ]; then
+            docker push public.ecr.aws/z3r6l3x6/fairpricepokeapi:latest
+          else
+            sam deploy
+          fi
+        fi
+       

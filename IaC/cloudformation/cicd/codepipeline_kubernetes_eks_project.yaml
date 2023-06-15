@@ -1,49 +1,97 @@
 Resources:
+  PokeApiBuildImageFromCf:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Source:
+        Type: GITHUB
+        Location: 'https://github.com/nardoguy14/AwsServerlessExample.git'
+        GitCloneDepth: 1
+        GitSubmodulesConfig:
+          FetchSubmodules: false
+        ReportBuildStatus: false
+        InsecureSsl: false
+      SecondarySources: [ ]
+      SourceVersion: integration
+      SecondarySourceVersions: [ ]
+      Artifacts:
+        Type: NO_ARTIFACTS
+      SecondaryArtifacts: [ ]
+      Cache:
+        Type: NO_CACHE
+      Environment:
+        Type: LINUX_CONTAINER
+        Image: 'aws/codebuild/amazonlinux2-x86_64-standard:4.0'
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: BUILD_KIND
+            Value: eks
+            Type: PLAINTEXT
+          - Name: ENVIRONMENT
+            Value: integration
+            Type: PLAINTEXT
+          - Name: DOCKERPASSWORD
+            Value: CAMera14
+            Type: PLAINTEXT
+        PrivilegedMode: true
+        ImagePullCredentialsType: CODEBUILD
+      ServiceRole: >-
+        arn:aws:iam::132856321237:role/service-role/codebuild-PokeApiBuildImage-service-role
+      TimeoutInMinutes: 60
+      QueuedTimeoutInMinutes: 480
+      EncryptionKey: 'arn:aws:kms:us-east-1:132856321237:alias/aws/s3'
+      Tags: [ ]
+      BadgeEnabled: false
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+        S3Logs:
+          Status: DISABLED
+          EncryptionDisabled: false
+      FileSystemLocations: [ ]
   PokemonMapperPipelineCloudformation:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-
-      roleArn: >-
+      RoleArn: >-
         arn:aws:iam::132856321237:role/service-role/AWSCodePipelineServiceRole-us-east-1-PokeApisForKubernetes
-      artifactStore:
-        type: S3
-        location: codepipeline-us-east-1-281556488682
-      stages:
-        - name: Source
-          actions:
-            - name: Source
-              actionTypeId:
-                category: Source
-                owner: AWS
-                provider: CodeStarSourceConnection
-                version: '1'
-              runOrder: 1
-              configuration:
+      ArtifactStore:
+        Type: S3
+        Location: codepipeline-us-east-1-281556488682
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              RunOrder: 1
+              Configuration:
                 BranchName: integration
                 ConnectionArn: >-
                   arn:aws:codestar-connections:us-east-1:132856321237:connection/f36607aa-3979-4880-989d-851ebcdd1e50
                 FullRepositoryId: nardoguy14/AwsServerlessExample
                 OutputArtifactFormat: CODE_ZIP
                 DetectChanges: 'true'
-              outputArtifacts:
-                - name: SourceArtifact
-              inputArtifacts: []
-              region: us-east-1
-              namespace: SourceVariables
-        - name: Build
-          actions:
-            - name: Build
-              actionTypeId:
-                category: Build
-                owner: AWS
-                provider: CodeBuild
-                version: '1'
-              runOrder: 1
-              configuration:
-                ProjectName: PokeApiBuildImage
-              outputArtifacts:
-                - name: BuildArtifact
-              inputArtifacts:
-                - name: SourceArtifact
-              region: us-east-1
-              namespace: BuildVariables
+              OutputArtifacts:
+                - Name: SourceArtifact
+              InputArtifacts: []
+              Region: us-east-1
+              Namespace: SourceVariables
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              RunOrder: 1
+              Configuration:
+                ProjectName: !Ref PokeApiBuildImageFromCf
+              OutputArtifacts:
+                - Name: BuildArtifact
+              InputArtifacts:
+                - Name: SourceArtifact
+              Region: us-east-1
+              Namespace: BuildVariables
