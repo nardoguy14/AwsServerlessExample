@@ -81,8 +81,3 @@ More documentation can be found here:
 
 Config files for cluster creation \
 https://eksctl.io/usage/creating-and-managing-clusters/
-
-```bash
-cd IaC/resources/eskctl
-eksctl create cluster -f eks_cluster_eksctl.yaml
-```
