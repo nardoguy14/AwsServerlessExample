@@ -101,6 +101,7 @@ def findGalleryCard(row):
 
 
 def validateCardAgainstTgc(row):
+    print("yayyyoyooy!")
     print(f'{row}')
     id = f"{row[3]}-{row[2]}"
 
