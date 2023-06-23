@@ -1,0 +1,67 @@
+FROM us-docker.pkg.dev/spinnaker-community/docker/halyard:stable
+USER root
+WORKDIR /tmp
+
+ARG AWS_KEY_ID
+ARG AWS_SECRET_KEY
+ARG REGION
+ARG CLUSTER_NAME
+ARG S3_BUCKET
+
+ENV AWS_ACCESS_KEY_ID=$AWS_KEY_ID
+ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY
+ENV AWS_DEFAULT_REGION=$REGION
+ENV CLUSTER_NAME=$CLUSTER_NAME
+ENV REGION=$REGION
+ENV S3_BUCKET=$S3_BUCKET
+
+RUN mkdir ~/.aws
+
+RUN printf "[default] \n\
+aws_access_key_id=${AWS_ACCESS_KEY_ID} \n\
+aws_secret_access_key=${AWS_SECRET_ACCESS_KEY} \n\
+region=${AWS_DEFAULT_REGION} \n\
+" >> ~/.aws/credentials
+
+
+RUN aws eks update-kubeconfig --region ${REGION} --name ${CLUSTER_NAME}
+
+COPY roles.yaml roles.yaml
+COPY setup.sh setup.sh
+
+RUN kubectl apply --context $(kubectl config current-context) -f roles.yaml
+
+RUN export TOKEN=$(kubectl get secret -n spinnaker sa-secret -o jsonpath='{.data.token}'); \
+  export CONTEXT=$(kubectl config current-context); \
+    echo $TOKEN >> token.txt; \
+  kubectl config set-credentials ${CONTEXT}-token-user --token $TOKEN; \
+  kubectl config set-context $CONTEXT --user ${CONTEXT}-token-user;
+
+#CMD ./setup.sh &
+
+USER spinnaker
+CMD ./setup.sh
+
+
+
+
+
+
+
+#
+#read -r AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN <<< \`aws sts assume-role --role-arn arn:aws:iam::$ACCOUNT_ID:role/$MANAGED_ROLE --query '[Credentials.AccessKeyId, Credentials.SecretAccessKey, Credentials.SessionToken]'  --output text --role-session-name $ACCOUNT_ID-$REGION-$MANAGED_ROLE\`;
+#
+#
+#export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN;
+#
+#
+#aws ecr get-authorization-token --region $REGION --output text --query 'authorizationData[].authorizationToken'  --registry-ids $ACCOUNT_ID| base64 -d | sed 's/^AWS://'
+#
+#hal config provider docker-registry account delete my-ecr-registry
+#hal config provider docker-registry account add my-ecr-registry \
+# --address $ADDRESS \
+# --username AWS \
+# --password-command "echo 'eyJwYXlsb2FkIjoiTW9WRlpTK3QvVDRNSndjVy93SjE0Y2VVTWYzb1ZLdjlJRzh0djFXWlorUmdwYzBUajdXM2QvQjgwRFhBZDh2YUd1emk2MGsrWm1PVm9FYXE4Z0M3UFVxVGZVQVpxSTROaEJ2QkllcG8wS25qa0l3M3JnZjVydGMwOURIQkZmeUVzeGVTcnNaSzVpVmY1cUt5bFhHNUJ3UUpsM1B5cXl4SW9JVW83Vlk3bEQ2TUVGMDFHTTE1cDN0eU1jNEVlSXBnUVRqTEIzQ01Gdml4dzBQTHNYNldRendrMU90Um1VL1pFQjJkUGhrQzlkVTF4UndsaWFoSnkwc21CbVdhNnVSeFVtRmU4dDFCZ3NKNEdMRStFcHFqTlk3Rjk5eTAwck03VHZrbGtHUHhLTnpoQmQ4eUYzc3NaTU1nd3VqcCt4Yzd5MDRGOXlKaWt3R0NMdkZjUXFsTll4emx6bjBRTjZqajk2YWhyZVFMZFVrM3NJUUFhMmRoQlN3aFJReWZkaWt0MlVSM0k5NXd4ZURhMWI2UmNZV2xLVXUxb2hyWFUzT0RsQWppTzVSSGdheGhEU3F3dFN5eWJDS0tKUjF6Y0NmMUo5UTNBWGFQcVNaMGlVOXl0TjZsUFNoeVhKQVpQRzUyQjZsRWRCUDZ0cUVuSG1HaWpPNmFWL0ZDK2hoc2diN2pQcUxncVJsa2FXUWJteHFhZk15SmlXK2ZDbTBhM1pyY29Ya3N3THNxUmZLdnNoQVpXdHZOekZvODZOME83czB3cWpyMkJCWHczMlovWmtYcWNHQzRUczVxVHhFek9YNDE5R0p6OE5Udk9tNHo0MlRjOHZNUlBmRUcraHpyeVh1VWVidzk0VVlIRk90b3I5dUtrTDBQNEFOVU9wYll3SFlJY3dPUk52RUxPVDZXcUxXTnBXN3czdGhCc2JSQUJ4d093bk5Hd0RzMGNEZkQxTUNHaUxZMy8wVHlBK1BEeFd5UHFNQjc1RnRaN1J5ajk3NVZVK1h3VCtWSE5DQnJ4c1pEcnF3M1hUai8rNlpLV1BxcW1PbjBjZ2dYanFLbElCT1dKZ0F4bm13MXNQKzNOMzhPVFJXVUJiYXJMYzNhTnBiWjZzdzltV3FDc2IzWWwxSUVMUnk5Qi85WG53V21DMjR3R2llcWZMSVFoN3RMN2ZkZUE0MEJOMHY5K1ZiVkFXRTE4VXNLL2ViTmxySmkrOGN5NERkSjBTSFBZMjUxY0lBZm1mRzlWclVaTVBtR2NzNUlsQWRZT3o0L1Nsamk5SW5MMGdxWFM5K21mYjVKK2loaWlnT0NXbFo5SXZxMmpvcndwOG81TDdaWnZZZWFKWXhUT3BQL2gxNjJIOHpEZUhISklEMm1aK0F5WW5Lby9PYW1OemhXV25rRVU4Zit4alBtRlJ0MGpTMk9weHZsTlV6WXdKU1F4M3NUQmZsQnNtNEJYdz09IiwiZGF0YWtleSI6IkFRRUJBSGh3bTBZYUlTSmVSdEptNW4xRzZ1cWVla1h1b1hYUGU1VUZjZTlScTgvMTR3QUFBSDR3ZkFZSktvWklodmNOQVFjR29HOHdiUUlCQURCb0Jna3Foa2lHOXcwQkJ3RXdIZ1lKWUlaSUFXVURCQUV1TUJFRURMR04zNUdNOGlDSjlxNlJtUUlCRUlBN0diaWpTQUMvS2VON1B0VnEvQThIRENWaGZyYjMvQlFIcGRRNjVGdWFnYk9HOTk4QlpxMnlFYWFIeUlJb2RUa2t2c0t1bXRHNkV1ZmhDVEk9IiwidmVyc2lvbiI6IjIiLCJ0eXBlIjoiREFUQV9LRVkiLCJleHBpcmF0aW9uIjoxNjg3MzE0MTkzfQ=='"
+
+
+
