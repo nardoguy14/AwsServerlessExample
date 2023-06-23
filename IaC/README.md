@@ -1,3 +1,25 @@
+# Halyard
+
+Used to create a spinnaker instance on EKS Kubernetes.
+
+To run execute the following:
+
+```shell
+cd IaC/cicd/halyard
+docker build -f DockerfileHalyard -t customized-halyard  \
+--build-arg AWS_KEY_ID=<REPLACEME> \
+--build-arg AWS_SECRET_KEY=<REPLACEME> \
+--build-arg REGION=<REPLACEME> \
+--build-arg CLUSTER_NAME=<REPLACEME> \
+--build-arg S3_BUCKET=<REPLACEME> .
+```
+
+Afterwards you may run the container via:
+
+```shell
+docker run -it --name my-halyard customized-halyard
+```
+
 # Cicd Pipeline
 
 To create a CICD pipeline we rely on multiple pieces. The first portion detects changes
