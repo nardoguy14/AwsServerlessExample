@@ -20,6 +20,14 @@ Afterwards you may run the container via:
 docker run -it --name my-halyard customized-halyard
 ```
 
+To add images for Spinnaker to pull from this must be ran with halyard
+```shell
+hal config provider docker-registry account \
+add my-ecr-registry2  \
+--address public.ecr.aws  \
+--repositories z3r6l3x6/fairpricepokeapi
+```
+
 # Cicd Pipeline
 
 To create a CICD pipeline we rely on multiple pieces. The first portion detects changes

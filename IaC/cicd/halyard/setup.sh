@@ -21,8 +21,9 @@ hal config storage s3 edit --access-key-id $AWS_ACCESS_KEY_ID \
 sleep 2;
 hal config storage edit --type s3;
 sleep 2;
-hal config version edit --version 1.30.2
+hal config version edit --version 1.30.2;
 
+ECR_TOKEN=$(cat /tmp/token.txt);
 
 # Wait for any process to exit
 wait -n
